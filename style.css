@@ -467,3 +467,179 @@ input[type="reset"]{
 
 }
 
+
+/* ===============================
+   MOBILE RESPONSIVE UI
+================================= */
+
+@media screen and (max-width:768px){
+
+body{
+    padding:10px;
+    background:#f4f7fc;
+}
+
+/* Header */
+
+.header-container{
+    flex-direction:column;
+    text-align:center;
+    padding:15px;
+    border-radius:15px;
+}
+
+.company-details h1{
+    font-size:24px;
+    letter-spacing:1px;
+}
+
+.company-details h3{
+    font-size:16px;
+}
+
+.company-details p{
+    font-size:13px;
+}
+
+.logo-container{
+    margin-top:15px;
+}
+
+.company-logo{
+    width:120px;
+    height:120px;
+    border-radius:50%;
+}
+
+/* Banner */
+
+.banner{
+    margin:10px 0;
+    border-radius:15px;
+}
+
+.banner-img{
+    border-radius:15px;
+}
+
+/* Form */
+
+form{
+    padding:15px;
+    border-radius:15px;
+}
+
+/* Sections */
+
+fieldset{
+    padding:15px;
+    border-radius:15px;
+    margin-bottom:18px;
+}
+
+legend{
+    font-size:15px;
+    padding:8px 15px;
+}
+
+/* Grid */
+
+.grid-2,
+.grid-3,
+.grid-4{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:15px;
+}
+
+/* Inputs */
+
+input,
+select,
+textarea{
+
+    width:100%;
+    font-size:15px;
+    padding:13px;
+    border-radius:10px;
+
+}
+
+/* Buttons */
+
+.button-group{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.button-group input{
+    width:100%;
+    padding:15px;
+    font-size:16px;
+    border-radius:12px;
+}
+
+/* Signature */
+
+.signature-section{
+    flex-direction:column;
+    gap:35px;
+}
+
+.sig-box{
+    width:100%;
+}
+
+/* QR */
+
+.qr-box{
+    margin:auto;
+}
+
+/* Tables */
+
+table{
+    display:block;
+    overflow-x:auto;
+    white-space:nowrap;
+}
+
+/* Footer */
+
+footer{
+    text-align:center;
+    padding:20px;
+    font-size:14px;
+}
+
+}
+
+/* Small Phones */
+
+@media screen and (max-width:480px){
+
+.company-details h1{
+    font-size:20px;
+}
+
+.company-logo{
+    width:90px;
+    height:90px;
+}
+
+legend{
+    font-size:14px;
+}
+
+input,
+select,
+textarea{
+    font-size:14px;
+}
+
+.button-group input{
+    font-size:15px;
+}
+
+}
