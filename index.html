@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Muthamizh Tours & Travels - Billing Form</title>
+<!-- Linked external stylesheet -->
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="header-container">
+  <div class="company-details">
+    <h1>MUTHAMIZH TOURS & TRAVELS</h1>
+    <h3>Customer Billing Form</h3>
+    <p>
+      <strong>Company Address:</strong> 123 Travel Plaza, Main Road, Chennai, Tamil Nadu - 600001<br>
+      <strong>Contact:</strong> +91 98765 43210 | info@muthamizhtours.com
+    </p>
+  </div>
+  <!-- Replace the old logo-placeholder div with this -->
+<div class="logo-container">
+  <img src="logo.png" alt="Muthamizh Tours & Travels Logo" class="company-logo">
+</div>
+</div>
+<div class="banner">
+    <img src="banner.png" alt="Muthamizh Tours & Travels Banner" class="banner-img">
+</div>
+
+<form>
+
+<fieldset>
+<legend><b>Bill Details</b></legend>
+<div class="grid-2">
+  <div>
+    <label>Bill Number</label><br>
+    <input type="text" name="billNo">
+  </div>
+  <div>
+    <label>Invoice Date</label><br>
+    <input type="date" name="invoiceDate">
+  </div>
+</div>
+<br>
+<label>Payment Status</label><br>
+<select name="paymentStatus">
+<option>Pending</option>
+<option>Paid</option>
+<option>Partial</option>
+</select>
+</fieldset>
+
+<fieldset>
+<legend><b>Customer Details</b></legend>
+<label>Customer Name</label><br>
+<input type="text" name="customerName"><br><br>
+
+<label>Mobile Number</label><br>
+<input type="tel" name="mobile"><br><br>
+
+<label>Email Address</label><br>
+<input type="email" name="email"><br><br>
+
+<label>Customer Address</label><br>
+<textarea name="address" rows="3" class="full-width-text"></textarea>
+</fieldset>
+
+<fieldset>
+<legend><b>Driver & Vehicle Details</b></legend>
+<label>Driver Name</label><br>
+<input type="text" name="driverName"><br><br>
+
+<label>Driver Mobile</label><br>
+<input type="tel" name="driverMobile"><br><br>
+
+<label>Driver Address</label><br>
+<textarea name="driverAddress" rows="3" class="full-width-text"></textarea><br><br>
+
+<label>License Number</label><br>
+<input type="text" name="license"><br><br>
+
+<label>Driver Aadhaar Number</label><br>
+<input type="text" name="driverAadhaar" placeholder="[Aadhaar Redacted]" maxlength="12"><br><br>
+
+<label>Vehicle Selection</label><br>
+<select name="vehicle">
+<option>Ertiga</option>
+<option>Wagon R</option>
+<option>Hyundai Aura</option>
+<option>Toyota Innova</option>
+<option>Swift Dzire</option>
+<option>Tempo Traveller</option>
+<option>Other</option>
+</select><br><br>
+
+<label>Vehicle Number</label><br>
+<input type="text" name="vehicleNumber"><br><br>
+
+<label>Vehicle Rate per KM (₹)</label><br>
+<input type="number" name="ratePerKm" step="0.01">
+</fieldset>
+
+<fieldset>
+<legend><b>Trip Details</b></legend>
+<label>Trip Type</label><br>
+<select name="tripType">
+<option>One Way</option>
+<option>Round Trip</option>
+<option>Local</option>
+<option>Airport Pickup</option>
+<option>Airport Drop</option>
+</select><br><br>
+
+<div class="grid-2">
+  <div>
+    <label>Start Place</label><br>
+    <input type="text" name="startPlace">
+  </div>
+  <div>
+    <label>End Place</label><br>
+    <input type="text" name="endPlace">
+  </div>
+</div>
+<br>
+
+<div class="grid-2">
+  <div>
+    <label>Pickup Time / Start Date & Time</label><br>
+    <input type="datetime-local" name="startDate">
+  </div>
+  <div>
+    <label>Drop Time / End Date & Time</label><br>
+    <input type="datetime-local" name="endDate">
+  </div>
+</div>
+<br>
+
+<div class="grid-2">
+  <div>
+    <label>Total Days</label><br>
+    <input type="number" name="totalDays" min="0">
+  </div>
+  <div>
+    <label>Total Hours</label><br>
+    <input type="number" name="totalHours" min="0" step="0.1">
+  </div>
+</div>
+</fieldset>
+
+<fieldset>
+<legend><b>KM Details</b></legend>
+<div class="grid-2">
+  <div>
+    <label>Start KM (Odometer)</label><br>
+    <input type="number" name="startKm">
+  </div>
+  <div>
+    <label>End KM (Odometer)</label><br>
+    <input type="number" name="endKm">
+  </div>
+</div>
+<br>
+<label>Total KM</label><br>
+<input type="number" name="totalKm" readonly>
+</fieldset>
+
+<fieldset>
+<legend><b>Charges Breakdown</b></legend>
+<label>Vehicle Rent / Base Charges</label><br>
+<input type="number" name="rent"><br><br>
+
+<label>Extra KM Charges</label><br>
+<input type="number" name="extraKm"><br><br>
+
+<label>Extra Hours Charges</label><br>
+<input type="number" name="extraHours"><br><br>
+
+<label>Night Charges</label><br>
+<input type="number" name="nightCharges"><br><br>
+
+<label>Fuel Charges (If separate)</label><br>
+<input type="number" name="fuelCharges"><br><br>
+
+<label>Permit / Toll / Parking Charges</label><br>
+<input type="number" name="permitCharges"><br><br>
+
+<label>Discount</label><br>
+<input type="number" name="discount"><br><br>
+
+<label>GST (%)</label><br>
+<input type="number" name="gst" step="0.01"><br><br>
+
+<label>Advance Paid</label><br>
+<input type="number" name="advance"><br><br>
+
+<label>Grand Total</label><br>
+<input type="number" name="grandTotal" readonly><br><br>
+
+<label>Balance Amount</label><br>
+<input type="number" name="balance" readonly>
+</fieldset>
+
+<fieldset>
+<legend><b>Payment Methods & Status</b></legend>
+<label>Payment Mode</label><br>
+<select name="paymentMode">
+<option>Cash</option>
+<option>UPI / QR Code</option>
+<option>Net Banking</option>
+<option>Credit/Debit Card</option>
+</select><br><br>
+
+<label>UPI Transaction ID</label><br>
+<input type="text" name="upiTxnId"><br><br>
+
+<div class="qr-container">
+  <p><strong>QR Code for UPI Payment:</strong></p>
+  <div class="qr-box">
+    [ Dynamic QR Code Placement ]
+  </div>
+</div>
+</fieldset>
+
+<fieldset>
+<legend><b>Remarks / Terms & Conditions</b></legend>
+<p class="terms-text">
+  <strong>Terms & Conditions:</strong><br>
+  1. All disputes are subject to local jurisdiction options only.<br>
+  2. Toll gates, parking fees, and state permit charges are to be borne by the customer unless explicitly wrapped into initial quotes.<br>
+  3. Night charges apply for journeys stretching between 10:00 PM to 6:00 AM.
+</p>
+<textarea rows="4" class="full-width" placeholder="Additional customer remarks go here..."></textarea>
+</fieldset>
+
+<br>
+
+<input type="submit" value="Save Bill">
+<input type="button" value="Generate PDF">
+<input type="button" value="Print Bill">
+<input type="button" value="Send Email">
+<input type="button" value="Send WhatsApp">
+<input type="reset" value="Clear Form">
+
+</form>
+
+<!-- jsPDF library (for Generate PDF button) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- Linked external JavaScript file -->
+<script src="script.js"></script>
+</body>
+</html>
