@@ -32,6 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const ratePerKmInput = form.querySelector('input[name="ratePerKm"]');
   const totalAmountInput = form.querySelector('input[name="totalAmount"]');
 
+  // Tariff rate card (AC / Non-AC per vehicle)
+  const vehicleSelect = form.querySelector('select[name="vehicle"]');
+  const acTypeSelect = form.querySelector('select[name="acType"]');
+  const rateCardTable = document.getElementById('rateCardTable');
+
   const grandTotalInput = form.querySelector('input[name="grandTotal"]');
   const balanceInput = form.querySelector('input[name="balance"]');
 
@@ -73,19 +78,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (totalDaysInput) totalDaysInput.value = computedDays || '';
     if (totalHoursInput) totalHoursInput.value = computedHours ? computedHours.toFixed(1) : '';
 
-    // 3. Total Amount = Total KM x Vehicle Rate per KM
-    const ratePerKm = getNumValue(ratePerKmInput);
-    const totalAmount = totalKm * ratePerKm;
-    if (totalAmountInput) totalAmountInput.value = totalAmount.toFixed(2);
-
-    // 4. Tariff Package: work out extra KM and extra hours beyond the
-    //    included package, then multiply each by its rate automatically
+    // 3. Tariff Package settings (read first so Total Amount can be
+    //    capped at the package limit and not double-count with Extra KM)
     const packageKm = getNumValue(packageKmInput);
     const packageHours = getNumValue(packageHoursInput);
     const ratePerKmExtra = getNumValue(ratePerKmExtraInput);
     const extraHourRate = getNumValue(extraHourRateInput);
     const totalHours = computedHours;
 
+    // 4. Total Amount = (Total KM capped at Package KM) x Vehicle Rate per KM
+    //    — this covers only the KM included in the package. Anything beyond
+    //    the package is billed separately below as Extra KM Charges, so it
+    //    is never counted twice.
+    const ratePerKm = getNumValue(ratePerKmInput);
+    const kmForBaseAmount = packageKm > 0 ? Math.min(totalKm, packageKm) : totalKm;
+    const totalAmount = kmForBaseAmount * ratePerKm;
+    if (totalAmountInput) totalAmountInput.value = totalAmount.toFixed(2);
+
+    // 5. Extra KM / Extra Hours beyond the package, multiplied by their rates
     const extraKmCount = Math.max(0, totalKm - packageKm);
     const extraKmCharge = extraKmCount * ratePerKmExtra;
     if (extraKmCountInput) extraKmCountInput.value = extraKmCount ? extraKmCount.toFixed(1).replace(/\.0$/, '') : 0;
@@ -96,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (extraHoursCountInput) extraHoursCountInput.value = extraHoursCount ? extraHoursCount.toFixed(1).replace(/\.0$/, '') : 0;
     if (extraHoursInput) extraHoursInput.value = extraHoursCharge.toFixed(2);
 
-    // 5. Sum up Base Fees and Extra Operational Charges
+    // 6. Sum up Base Fees and Extra Operational Charges
     const rent = getNumValue(rentInput);
     const extraKm = getNumValue(extraKmInput);
     const extraHours = getNumValue(extraHoursInput);
@@ -108,14 +118,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const subTotalBeforeGst = (rent + totalAmount + extraKm + extraHours + nightCharges + fuelCharges + permitCharges) - discount;
     const baseAmount = Math.max(0, subTotalBeforeGst);
 
-    // 6. Apply Taxes (GST)
+    // 7. Apply Taxes (GST)
     const gstPercent = getNumValue(gstInput);
     const gstAmount = baseAmount * (gstPercent / 100);
     const grandTotal = baseAmount + gstAmount;
 
     grandTotalInput.value = grandTotal.toFixed(2);
 
-    // 7. Determine Pending Dues / Balance
+    // 8. Determine Pending Dues / Balance
     const advancePaid = getNumValue(advanceInput);
     const balanceDue = grandTotal - advancePaid;
 
@@ -137,6 +147,57 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ---------------------------------------------------------------
+  // TARIFF RATE CARD — pick the rate for the selected Vehicle +
+  // AC/Non-AC from the editable rate card table, and auto-fill it
+  // into "Vehicle Rate per KM" and "Rate per Extra KM"
+  // ---------------------------------------------------------------
+  const applyRateCard = () => {
+    if (!rateCardTable || !vehicleSelect || !acTypeSelect) return;
+
+    const selectedVehicle = vehicleSelect.value;
+    const isAc = acTypeSelect.value === 'AC';
+    const rows = rateCardTable.querySelectorAll('tbody tr');
+
+    let matchedRow = null;
+    rows.forEach(row => {
+      row.classList.remove('active-rate-row');
+      if (row.getAttribute('data-vehicle') === selectedVehicle) {
+        matchedRow = row;
+      }
+    });
+
+    // "Other" vehicles may not have an exact row match; fall back to the "Other" row
+    if (!matchedRow) {
+      matchedRow = rateCardTable.querySelector('tr[data-vehicle="Other"]');
+    }
+
+    if (matchedRow) {
+      matchedRow.classList.add('active-rate-row');
+      const rateInput = matchedRow.querySelector(isAc ? '.rate-ac' : '.rate-nonac');
+      if (rateInput && rateInput.value !== '') {
+        const rateVal = rateInput.value;
+        if (ratePerKmInput) ratePerKmInput.value = rateVal;
+        if (ratePerKmExtraInput) ratePerKmExtraInput.value = rateVal;
+      }
+    }
+
+    calculateBill();
+  };
+
+  if (vehicleSelect) vehicleSelect.addEventListener('change', applyRateCard);
+  if (acTypeSelect) acTypeSelect.addEventListener('change', applyRateCard);
+
+  if (rateCardTable) {
+    rateCardTable.querySelectorAll('.rate-nonac, .rate-ac').forEach(cell => {
+      cell.addEventListener('input', applyRateCard);
+    });
+  }
+
+  // Apply the rate card once on load so the default Vehicle/AC selection
+  // has a matching rate pre-filled from the start
+  applyRateCard();
+
+  // ---------------------------------------------------------------
   // Shared helper: pull every field on the form into a plain object
   // ---------------------------------------------------------------
   const getFieldVal = (name) => {
@@ -147,6 +208,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const fmtMoney = (val) => {
     const n = parseFloat(val);
     return isNaN(n) ? '0.00' : n.toFixed(2);
+  };
+
+  // The KM actually billed inside Total Amount — capped at Package KM so it
+  // never overlaps with Extra KM Charges. Mirrors the calculateBill() logic.
+  const getKmForBaseAmount = (d) => {
+    const totalKmNum = parseFloat(d.totalKm) || 0;
+    const packageKmNum = parseFloat(d.packageKm) || 0;
+    return packageKmNum > 0 ? Math.min(totalKmNum, packageKmNum) : totalKmNum;
   };
 
   const collectBillData = () => {
@@ -164,6 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
       driverMobile: getFieldVal('driverMobile') || '-',
       license: getFieldVal('license') || '-',
       vehicle: getFieldVal('vehicle') || '-',
+      acType: getFieldVal('acType') || '-',
       vehicleNumber: getFieldVal('vehicleNumber') || '-',
       ratePerKm: getFieldVal('ratePerKm') || '0',
 
@@ -213,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `Customer: ${d.customerName}`,
       `Mobile: ${d.mobile}`,
       ``,
-      `Vehicle: ${d.vehicle} (${d.vehicleNumber})`,
+      `Vehicle: ${d.vehicle} (${d.acType}) - ${d.vehicleNumber}`,
       `Driver: ${d.driverName} (${d.driverMobile})`,
       ``,
       `Trip: ${d.tripType} | ${d.startPlace} -> ${d.endPlace}`,
@@ -221,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `Total Days: ${d.totalDays}   Total Hours: ${d.totalHours}   Total KM: ${d.totalKm}`,
       ``,
       `--- Charges ---`,
-      `Total Amount: ${d.totalKm} KM x Rs.${fmtMoney(d.ratePerKm)} = Rs.${fmtMoney(d.totalAmount)}`,
+      `Total Amount: ${getKmForBaseAmount(d)} KM x Rs.${fmtMoney(d.ratePerKm)} = Rs.${fmtMoney(d.totalAmount)}`,
       `Package: ${d.packageKm} KM & ${d.packageHours} Hrs | Base Fare: Rs.${fmtMoney(d.rent)}`,
       `Extra KM: ${d.extraKmCount} x Rs.${fmtMoney(d.ratePerKmExtra)} = Rs.${fmtMoney(d.extraKm)}`,
       `Extra Hours: ${d.extraHoursCount} x Rs.${fmtMoney(d.extraHourRate)} = Rs.${fmtMoney(d.extraHours)}`,
@@ -285,9 +355,9 @@ document.addEventListener('DOMContentLoaded', () => {
       doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(90, 90, 90);
-      doc.text('47/kizh krishnapuram village thippasamuthiram post pallikonda via,anaicut taluk,vellore District pin-635809', pageWidth / 2, y, { align: 'center' });
+      doc.text('123 Travel Plaza, Main Road, Chennai, Tamil Nadu - 600001', pageWidth / 2, y, { align: 'center' });
       y += 15;
-      doc.text('Contact:6382836143 & 8754269988 | uthamizhtours@gmail.com', pageWidth / 2, y, { align: 'center' });
+      doc.text('Contact: +91 98765 43210 | info@muthamizhtours.com', pageWidth / 2, y, { align: 'center' });
 
       y += 20;
       doc.setDrawColor(200, 200, 200);
@@ -331,7 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
       addLine('Driver Mobile:', d.driverMobile, pageWidth / 2);
       y += 16;
       addLine('License No:', d.license);
-      addLine('Vehicle:', d.vehicle, pageWidth / 2);
+      addLine('Vehicle:', `${d.vehicle} (${d.acType})`, pageWidth / 2);
       y += 16;
       addLine('Vehicle No:', d.vehicleNumber);
       addLine('Rate/KM:', 'Rs.' + fmtMoney(d.ratePerKm), pageWidth / 2);
@@ -357,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9.5);
       doc.setTextColor(70, 70, 70);
-      doc.text(`Total Amount  (${d.totalKm} KM x Rs.${fmtMoney(d.ratePerKm)})`, margin, y);
+      doc.text(`Total Amount  (${getKmForBaseAmount(d)} KM x Rs.${fmtMoney(d.ratePerKm)})`, margin, y);
       doc.text('Rs.' + fmtMoney(d.totalAmount), pageWidth - margin, y, { align: 'right' });
       y += 16;
 
