@@ -325,6 +325,28 @@ min-height:120px;
 
 }
 
+/*================ TARIFF HINT ================*/
+
+.tariff-hint{
+
+font-size:13px;
+
+color:#0066cc;
+
+background:#eaf4ff;
+
+border-left:4px solid #0077cc;
+
+padding:10px 14px;
+
+border-radius:8px;
+
+margin-bottom:18px;
+
+line-height:1.5;
+
+}
+
 /*================ TABLE ================*/
 
 table{

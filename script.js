@@ -16,6 +16,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const gstInput = form.querySelector('input[name="gst"]');
   const advanceInput = form.querySelector('input[name="advance"]');
 
+  // Tariff / package fields
+  const packageKmInput = form.querySelector('input[name="packageKm"]');
+  const packageHoursInput = form.querySelector('input[name="packageHours"]');
+  const ratePerKmExtraInput = form.querySelector('input[name="ratePerKmExtra"]');
+  const extraHourRateInput = form.querySelector('input[name="extraHourRate"]');
+  const extraKmCountInput = form.querySelector('input[name="extraKmCount"]');
+  const extraHoursCountInput = form.querySelector('input[name="extraHoursCount"]');
+  const totalHoursInput = form.querySelector('input[name="totalHours"]');
+
+  // Trip date/time + duration + rate + total amount fields
+  const startDateInput = form.querySelector('input[name="startDate"]');
+  const endDateInput = form.querySelector('input[name="endDate"]');
+  const totalDaysInput = form.querySelector('input[name="totalDays"]');
+  const ratePerKmInput = form.querySelector('input[name="ratePerKm"]');
+  const totalAmountInput = form.querySelector('input[name="totalAmount"]');
+
   const grandTotalInput = form.querySelector('input[name="grandTotal"]');
   const balanceInput = form.querySelector('input[name="balance"]');
 
@@ -39,7 +55,48 @@ document.addEventListener('DOMContentLoaded', () => {
       totalKmInput.value = '';
     }
 
-    // 2. Sum up Base Fees and Extra Operational Charges
+    // 2. Auto-calculate Total Days / Total Hours from pickup & drop date-time
+    let computedHours = 0;
+    let computedDays = 0;
+    const startVal = startDateInput ? startDateInput.value : '';
+    const endVal = endDateInput ? endDateInput.value : '';
+
+    if (startVal && endVal) {
+      const start = new Date(startVal);
+      const end = new Date(endVal);
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && end > start) {
+        const diffMs = end - start;
+        computedHours = diffMs / (1000 * 60 * 60);
+        computedDays = Math.max(1, Math.ceil(computedHours / 24));
+      }
+    }
+    if (totalDaysInput) totalDaysInput.value = computedDays || '';
+    if (totalHoursInput) totalHoursInput.value = computedHours ? computedHours.toFixed(1) : '';
+
+    // 3. Total Amount = Total KM x Vehicle Rate per KM
+    const ratePerKm = getNumValue(ratePerKmInput);
+    const totalAmount = totalKm * ratePerKm;
+    if (totalAmountInput) totalAmountInput.value = totalAmount.toFixed(2);
+
+    // 4. Tariff Package: work out extra KM and extra hours beyond the
+    //    included package, then multiply each by its rate automatically
+    const packageKm = getNumValue(packageKmInput);
+    const packageHours = getNumValue(packageHoursInput);
+    const ratePerKmExtra = getNumValue(ratePerKmExtraInput);
+    const extraHourRate = getNumValue(extraHourRateInput);
+    const totalHours = computedHours;
+
+    const extraKmCount = Math.max(0, totalKm - packageKm);
+    const extraKmCharge = extraKmCount * ratePerKmExtra;
+    if (extraKmCountInput) extraKmCountInput.value = extraKmCount ? extraKmCount.toFixed(1).replace(/\.0$/, '') : 0;
+    if (extraKmInput) extraKmInput.value = extraKmCharge.toFixed(2);
+
+    const extraHoursCount = Math.max(0, totalHours - packageHours);
+    const extraHoursCharge = extraHoursCount * extraHourRate;
+    if (extraHoursCountInput) extraHoursCountInput.value = extraHoursCount ? extraHoursCount.toFixed(1).replace(/\.0$/, '') : 0;
+    if (extraHoursInput) extraHoursInput.value = extraHoursCharge.toFixed(2);
+
+    // 5. Sum up Base Fees and Extra Operational Charges
     const rent = getNumValue(rentInput);
     const extraKm = getNumValue(extraKmInput);
     const extraHours = getNumValue(extraHoursInput);
@@ -48,17 +105,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const permitCharges = getNumValue(permitChargesInput);
     const discount = getNumValue(discountInput);
 
-    const subTotalBeforeGst = (rent + extraKm + extraHours + nightCharges + fuelCharges + permitCharges) - discount;
+    const subTotalBeforeGst = (rent + totalAmount + extraKm + extraHours + nightCharges + fuelCharges + permitCharges) - discount;
     const baseAmount = Math.max(0, subTotalBeforeGst);
 
-    // 3. Apply Taxes (GST)
+    // 6. Apply Taxes (GST)
     const gstPercent = getNumValue(gstInput);
     const gstAmount = baseAmount * (gstPercent / 100);
     const grandTotal = baseAmount + gstAmount;
 
     grandTotalInput.value = grandTotal.toFixed(2);
 
-    // 4. Determine Pending Dues / Balance
+    // 7. Determine Pending Dues / Balance
     const advancePaid = getNumValue(advanceInput);
     const balanceDue = grandTotal - advancePaid;
 
@@ -67,9 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Attach event listeners for real-time calculation execution
   const trackingFields = [
-    startKmInput, endKmInput, rentInput, extraKmInput,
-    extraHoursInput, nightChargesInput, fuelChargesInput,
-    permitChargesInput, discountInput, gstInput, advanceInput
+    startKmInput, endKmInput, rentInput, nightChargesInput, fuelChargesInput,
+    permitChargesInput, discountInput, gstInput, advanceInput,
+    packageKmInput, packageHoursInput, ratePerKmExtraInput, extraHourRateInput,
+    startDateInput, endDateInput, ratePerKmInput
   ];
 
   trackingFields.forEach(field => {
@@ -120,6 +178,14 @@ document.addEventListener('DOMContentLoaded', () => {
       startKm: getFieldVal('startKm') || '0',
       endKm: getFieldVal('endKm') || '0',
       totalKm: getFieldVal('totalKm') || '0',
+      totalAmount: getFieldVal('totalAmount') || '0',
+
+      packageKm: getFieldVal('packageKm') || '0',
+      packageHours: getFieldVal('packageHours') || '0',
+      ratePerKmExtra: getFieldVal('ratePerKmExtra') || '0',
+      extraHourRate: getFieldVal('extraHourRate') || '0',
+      extraKmCount: getFieldVal('extraKmCount') || '0',
+      extraHoursCount: getFieldVal('extraHoursCount') || '0',
 
       rent: getFieldVal('rent') || '0',
       extraKm: getFieldVal('extraKm') || '0',
@@ -155,9 +221,10 @@ document.addEventListener('DOMContentLoaded', () => {
       `Total Days: ${d.totalDays}   Total Hours: ${d.totalHours}   Total KM: ${d.totalKm}`,
       ``,
       `--- Charges ---`,
-      `Vehicle Rent: Rs.${fmtMoney(d.rent)}`,
-      `Extra KM Charges: Rs.${fmtMoney(d.extraKm)}`,
-      `Extra Hours Charges: Rs.${fmtMoney(d.extraHours)}`,
+      `Total Amount: ${d.totalKm} KM x Rs.${fmtMoney(d.ratePerKm)} = Rs.${fmtMoney(d.totalAmount)}`,
+      `Package: ${d.packageKm} KM & ${d.packageHours} Hrs | Base Fare: Rs.${fmtMoney(d.rent)}`,
+      `Extra KM: ${d.extraKmCount} x Rs.${fmtMoney(d.ratePerKmExtra)} = Rs.${fmtMoney(d.extraKm)}`,
+      `Extra Hours: ${d.extraHoursCount} x Rs.${fmtMoney(d.extraHourRate)} = Rs.${fmtMoney(d.extraHours)}`,
       `Night Charges: Rs.${fmtMoney(d.nightCharges)}`,
       `Fuel Charges: Rs.${fmtMoney(d.fuelCharges)}`,
       `Permit/Toll/Parking: Rs.${fmtMoney(d.permitCharges)}`,
@@ -218,9 +285,9 @@ document.addEventListener('DOMContentLoaded', () => {
       doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(90, 90, 90);
-      doc.text('123 Travel Plaza, Main Road, Chennai, Tamil Nadu - 600001', pageWidth / 2, y, { align: 'center' });
+      doc.text('47/kizh krishnapuram village thippasamuthiram post pallikonda via,anaicut taluk,vellore District pin-635809', pageWidth / 2, y, { align: 'center' });
       y += 15;
-      doc.text('Contact: +91 98765 43210 | info@muthamizhtours.com', pageWidth / 2, y, { align: 'center' });
+      doc.text('Contact:6382836143 & 8754269988 | uthamizhtours@gmail.com', pageWidth / 2, y, { align: 'center' });
 
       y += 20;
       doc.setDrawColor(200, 200, 200);
@@ -287,10 +354,21 @@ document.addEventListener('DOMContentLoaded', () => {
       y += 20;
 
       sectionTitle('Charges Breakdown');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9.5);
+      doc.setTextColor(70, 70, 70);
+      doc.text(`Total Amount  (${d.totalKm} KM x Rs.${fmtMoney(d.ratePerKm)})`, margin, y);
+      doc.text('Rs.' + fmtMoney(d.totalAmount), pageWidth - margin, y, { align: 'right' });
+      y += 16;
+
+      doc.setFontSize(10);
+      doc.text(`Package: ${d.packageKm} KM & ${d.packageHours} Hrs`, margin, y);
+      doc.text('Rs.' + fmtMoney(d.rent), pageWidth - margin, y, { align: 'right' });
+      y += 16;
+
       const charges = [
-        ['Vehicle Rent', d.rent],
-        ['Extra KM Charges', d.extraKm],
-        ['Extra Hours Charges', d.extraHours],
+        [`Extra KM  (${d.extraKmCount} x Rs.${fmtMoney(d.ratePerKmExtra)})`, d.extraKm],
+        [`Extra Hours  (${d.extraHoursCount} x Rs.${fmtMoney(d.extraHourRate)})`, d.extraHours],
         ['Night Charges', d.nightCharges],
         ['Fuel Charges', d.fuelCharges],
         ['Permit/Toll/Parking', d.permitCharges],
@@ -300,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ];
       charges.forEach(([label, val]) => {
         doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
+        doc.setFontSize(9.5);
         doc.setTextColor(70, 70, 70);
         doc.text(label, margin, y);
         const displayVal = label === 'GST' ? String(val) : 'Rs.' + fmtMoney(val);
