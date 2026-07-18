@@ -224,6 +224,34 @@
 </div>
 <br>
 
+<div class="form-group">
+    <label>AC Details</label>
+    <select id="vehicleType" name="acType" onchange="toggleRateSection()">
+        <option value="">-- Select AC Type --</option>
+        <option value="AC">AC Vehicle</option>
+        <option value="NON_AC">Non-AC Vehicle</option>
+    </select>
+</div>
+
+<div id="rateSection" style="display:none;">
+
+    <div class="form-group">
+        <label>Rate per KM (₹)</label><br>
+        <input type="number" id="rate" name="acRatePerKm" placeholder="Enter Rate" oninput="calculateACTotal()">
+    </div>
+
+    <div class="form-group">
+        <label>Total KM</label><br>
+        <input type="number" id="km" name="acTotalKm" placeholder="Enter KM" oninput="calculateACTotal()">
+    </div>
+
+    <div class="form-group">
+        <label>Total Amount</label><br>
+        <input type="text" id="total" name="acTotalAmount" readonly>
+    </div>
+
+</div>
+
 <label>Night Charges</label><br>
 <input type="number" name="nightCharges"><br><br>
 
@@ -240,13 +268,13 @@
 <input type="number" name="gst" step="0.01"><br><br>
 
 <label>Advance Paid</label><br>
-<input type="number" name="advance"><br><br>
+<input type="number" id="advance" name="advance" oninput="updateGrandTotal()"><br><br>
 
 <label>Grand Total</label><br>
-<input type="number" name="grandTotal" readonly><br><br>
+<input type="number" id="grandTotal" name="grandTotal" readonly><br><br>
 
 <label>Balance Amount</label><br>
-<input type="number" name="balance" readonly>
+<input type="number" id="balance" name="balance" readonly>
 </fieldset>
 
 <fieldset>

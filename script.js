@@ -554,3 +554,53 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+function toggleRateSection() {
+    const type = document.getElementById('vehicleType').value;
+    const section = document.getElementById('rateSection');
+    section.style.display = type ? 'block' : 'none';
+    if (!type) {
+      document.getElementById('total').value = '';
+      updateGrandTotal();
+    }
+  }
+
+  function calculateACTotal() {
+    const rate = parseFloat(document.getElementById('rate').value) || 0;
+    const km = parseFloat(document.getElementById('km').value) || 0;
+    const total = rate * km;
+    document.getElementById('total').value = total.toFixed(2);
+    updateGrandTotal();
+  }
+
+  function updateGrandTotal() {
+    const val = (id) => parseFloat(document.querySelector(`[name="${id}"]`)?.value) || 0;
+
+    const acTotal = parseFloat(document.getElementById('total').value) || 0;
+    const rent = val('rent');
+    const extraKm = val('extraKm');
+    const extraHours = val('extraHours');
+    const nightCharges = val('nightCharges');
+    const fuelCharges = val('fuelCharges');
+    const permitCharges = val('permitCharges');
+    const discount = val('discount');
+    const gstPercent = val('gst');
+    const advance = parseFloat(document.getElementById('advance').value) || 0;
+
+    const subtotal = acTotal + rent + extraKm + extraHours + nightCharges + fuelCharges + permitCharges - discount;
+    const gstAmount = subtotal * (gstPercent / 100);
+    const grandTotal = subtotal + gstAmount;
+    const balance = grandTotal - advance;
+
+    document.getElementById('grandTotal').value = grandTotal.toFixed(2);
+    document.getElementById('balance').value = balance.toFixed(2);
+  }
+
+  // Recalculate whenever any charge field changes
+  document.addEventListener('DOMContentLoaded', () => {
+    const chargeFields = ['rent', 'extraKm', 'extraHours', 'nightCharges', 'fuelCharges', 'permitCharges', 'discount', 'gst'];
+    chargeFields.forEach((name) => {
+      const el = document.querySelector(`[name="${name}"]`);
+      if (el) el.addEventListener('input', updateGrandTotal);
+    });
+  });
