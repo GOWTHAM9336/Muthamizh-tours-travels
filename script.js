@@ -355,9 +355,9 @@ document.addEventListener('DOMContentLoaded', () => {
       doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(90, 90, 90);
-      doc.text('123 Travel Plaza, Main Road, Chennai, Tamil Nadu - 600001', pageWidth / 2, y, { align: 'center' });
+      doc.text('47/kizh krishnapuram village thippasamuthiram post pallikonda via,anaicut taluk,vellore pin:635809', pageWidth / 2, y, { align: 'center' });
       y += 15;
-      doc.text('Contact: +91 98765 43210 | Gmail:muthamizhtours@gmail.com ', pageWidth / 2, y, { align: 'center' });
+      doc.text('Contact: 6382836143 & 8754269988 | Gmail:muthamizhtours@gmail.com ', pageWidth / 2, y, { align: 'center' });
 
       y += 20;
       doc.setDrawColor(200, 200, 200);
@@ -427,15 +427,18 @@ document.addEventListener('DOMContentLoaded', () => {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9.5);
       doc.setTextColor(70, 70, 70);
-      doc.text(`Total Amount  (${getKmForBaseAmount(d)} KM x Rs.${fmtMoney(d.ratePerKm)})`, margin, y);
-      doc.text('Rs.' + fmtMoney(d.totalAmount), pageWidth - margin, y, { align: 'right' });
-      y += 16;
-
       doc.setFontSize(10);
       doc.text(`Package: ${d.packageKm} KM & ${d.packageHours} Hrs`, margin, y);
       doc.text('Rs.' + fmtMoney(d.rent), pageWidth - margin, y, { align: 'right' });
       y += 16;
 
+
+
+      doc.text(`Base Fare  (${getKmForBaseAmount(d)} KM x Rs.${fmtMoney(d.ratePerKm)})`, margin, y);
+      doc.text('Rs.' + fmtMoney(d.totalAmount), pageWidth - margin, y, { align: 'right' });
+      y += 16;
+
+  
       const charges = [
         [`Extra KM  (${d.extraKmCount} x Rs.${fmtMoney(d.ratePerKmExtra)})`, d.extraKm],
         [`Extra Hours  (${d.extraHoursCount} x Rs.${fmtMoney(d.extraHourRate)})`, d.extraHours],
