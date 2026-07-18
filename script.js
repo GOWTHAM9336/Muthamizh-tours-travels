@@ -237,6 +237,10 @@ document.addEventListener('DOMContentLoaded', () => {
       vehicleNumber: getFieldVal('vehicleNumber') || '-',
       ratePerKm: getFieldVal('ratePerKm') || '0',
 
+      acRatePerKm: getFieldVal('acRatePerKm') || '0',
+      acTotalKm: getFieldVal('acTotalKm') || '0',
+      acTotalAmount: getFieldVal('acTotalAmount') || '0',
+
       tripType: getFieldVal('tripType') || '-',
       startPlace: getFieldVal('startPlace') || '-',
       endPlace: getFieldVal('endPlace') || '-',
@@ -274,6 +278,20 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   };
 
+  // Readable label for the AC / Non-AC dropdown value
+  const acTypeLabel = (d) => {
+    if (d.acType === 'AC') return 'AC Vehicle';
+    if (d.acType === 'NON_AC') return 'Non-AC Vehicle';
+    return '-';
+  };
+
+  // Whether the separate "AC Details" mini rate-calculator section has
+  // actually been filled in (it's optional, so only show it when used)
+  const hasAcDetails = (d) => {
+    return (d.acType === 'AC' || d.acType === 'NON_AC') &&
+      (parseFloat(d.acRatePerKm) > 0 || parseFloat(d.acTotalKm) > 0 || parseFloat(d.acTotalAmount) > 0);
+  };
+
   // Build a plain-text summary used for both Email and WhatsApp
   const buildTextSummary = (d) => {
     return [
@@ -285,6 +303,11 @@ document.addEventListener('DOMContentLoaded', () => {
       ``,
       `Vehicle: ${d.vehicle} (${d.acType}) - ${d.vehicleNumber}`,
       `Driver: ${d.driverName} (${d.driverMobile})`,
+      ...(hasAcDetails(d) ? [
+        ``,
+        `AC Details: ${acTypeLabel(d)}`,
+        `${d.acTotalKm} KM x Rs.${fmtMoney(d.acRatePerKm)} = Rs.${fmtMoney(d.acTotalAmount)}`
+      ] : []),
       ``,
       `Trip: ${d.tripType} | ${d.startPlace} -> ${d.endPlace}`,
       `Pickup: ${d.startDate}   Drop: ${d.endDate}`,
@@ -406,6 +429,16 @@ document.addEventListener('DOMContentLoaded', () => {
       addLine('Vehicle No:', d.vehicleNumber);
       addLine('Rate/KM:', 'Rs.' + fmtMoney(d.ratePerKm), pageWidth / 2);
       y += 20;
+
+      if (hasAcDetails(d)) {
+        sectionTitle('AC Details');
+        addLine('AC Type:', acTypeLabel(d));
+        addLine('Rate/KM:', 'Rs.' + fmtMoney(d.acRatePerKm), pageWidth / 2);
+        y += 16;
+        addLine('Total KM:', d.acTotalKm);
+        addLine('AC Total:', 'Rs.' + fmtMoney(d.acTotalAmount), pageWidth / 2);
+        y += 20;
+      }
 
       sectionTitle('Trip Details');
       addLine('Trip Type:', d.tripType);
