@@ -357,7 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
       doc.setTextColor(90, 90, 90);
       doc.text('123 Travel Plaza, Main Road, Chennai, Tamil Nadu - 600001', pageWidth / 2, y, { align: 'center' });
       y += 15;
-      doc.text('Contact: +91 98765 43210 | info@muthamizhtours.com', pageWidth / 2, y, { align: 'center' });
+      doc.text('Contact: +91 98765 43210 | Gmail:muthamizhtours@gmail.com ', pageWidth / 2, y, { align: 'center' });
 
       y += 20;
       doc.setDrawColor(200, 200, 200);
