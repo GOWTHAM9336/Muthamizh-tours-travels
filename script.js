@@ -491,15 +491,16 @@ document.addEventListener('DOMContentLoaded', () => {
       doc.setFontSize(9.5);
       doc.setTextColor(70, 70, 70);
       doc.setFontSize(10);
-      doc.text(`Package: ${d.packageKm} KM & ${d.packageHours} Hrs`, margin, y);
+
+      doc.text(`Package  ${d.packageKm} KM & ${d.packageHours} Hrs (${getKmForBaseAmount(d)} KM x Rs.${fmtMoney(d.ratePerKm)})`, margin, y);
+      doc.text('Rs.' + fmtMoney(d.totalAmount), pageWidth - margin, y, { align: 'right' });
+      y += 16;
+      doc.text(`Base Fare `, margin, y);
       doc.text('Rs.' + fmtMoney(d.rent), pageWidth - margin, y, { align: 'right' });
       y += 16;
 
 
-
-      doc.text(`Base Fare  (${getKmForBaseAmount(d)} KM x Rs.${fmtMoney(d.ratePerKm)})`, margin, y);
-      doc.text('Rs.' + fmtMoney(d.totalAmount), pageWidth - margin, y, { align: 'right' });
-      y += 16;
+      
 
   
       const charges = [
